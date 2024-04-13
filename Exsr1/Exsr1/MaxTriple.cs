@@ -1,4 +1,6 @@
-﻿namespace MaxTriple
+﻿using System.Diagnostics;
+
+namespace MaxTriple
 { 
     public class MaxTriple
     {
@@ -7,47 +9,45 @@
             Console.WriteLine("N:");
             int N = int.Parse(Console.ReadLine());
 
-            int result = GetResult(N);
+            long result = GetResult(N);
 
-            Console.WriteLine($"result: {result}");
+            Console.WriteLine("Result: " + result);
         }
 
-        static int GetResult(int N)
+        static long GetResult(int N)
         {
             if (N < 3)
                 throw new Exception("Need minimum 3 numbers");
 
-            int[] maxP = [int.MinValue, int.MinValue, int.MinValue];// +100
-            int[] minN = [int.MaxValue, int.MaxValue, int.MaxValue];// -100
-            int[] maxN = [int.MinValue, int.MinValue, int.MinValue];// -1
+            int[] maxP = [0, 0, 0];// +100
+            int[] minN = [0, 0, 0];// -100
+            int[] maxN = [0, 0, 0];// -1
 
             Console.WriteLine("Ai:");
             FillNumbers(N, maxP, minN, maxN);
 
-            if (maxP[0] == int.MinValue)
-                return maxN[0] * maxN[1] * maxN[2];
+            Stopwatch stopWatch = new();
 
-            int mN = MaxMult(minN);
-            if (maxP[1] == int.MinValue)
-                return maxP[0] * mN;
-            if (maxP[2] == int.MinValue)
-                return maxP[0] * maxP[1] * maxN[0];
+            stopWatch.Start();
+            long result = FindMaxTriple(maxP, minN, maxN);
+            stopWatch.Stop();
 
-            int[] tmp = [maxP[0] * maxP[1] * maxP[2],
-                        mN*maxP[0],
-                        mN*maxP[1],
-                        mN*maxP[2]];
-            int result = tmp[0];
-            foreach (int i in tmp)
-                if (i > result)
-                    result = i;
+            Console.WriteLine($"Time: {stopWatch.Elapsed.Milliseconds}ms");
 
             return result;
         }
 
         static void FillNumbers(int N, int[] maxP, int[] minN, int[] maxN)
         {
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i<3;i++)
+            {
+                int a = int.Parse(Console.ReadLine());
+                maxP[i] = a;
+                minN[i] = a;
+                maxN[i] = a;
+            }
+
+            for (int i = 3; i < N; i++)
             {
                 int a = int.Parse(Console.ReadLine());
 
@@ -77,10 +77,7 @@
                 return 0;
             if (mas[1] <= mas[2] && mas[1] <= mas[0])
                 return 1;
-            if (mas[2] <= mas[0] && mas[2] <= mas[1])
-                return 2;
-
-            throw new Exception();
+            return 2;
         }
 
         static int MaxElemIndex(int[] mas)
@@ -89,33 +86,36 @@
                 return 0;
             if (mas[1] >= mas[2] && mas[1] >= mas[0])
                 return 1;
-            if (mas[2] >= mas[0] && mas[2] >= mas[1])
-                return 2;
-
-            throw new Exception();
+            return 2;
         }
 
-        static int MaxMult(int[] mas)
+        static long FindMaxTriple(int[] maxP, int[] minN, int[] maxN)
         {
-            if (mas[0] == int.MaxValue)
-                throw new Exception("No negative numbers");
-            if (mas[1] == int.MaxValue)
-                return mas[0];
-            if (mas[2] == int.MaxValue)
-                return mas[0] * mas[1];
+            long result = int.MinValue;
+            long mN = int.MinValue;
 
-            int m1 = mas[0] * mas[1];
-            int m2 = mas[1] * mas[2];
-            int m3 = mas[0] * mas[2];
+            long m1 = minN[0] * minN[1];
+            long m2 = minN[1] * minN[2];
+            long m3 = minN[0] * minN[2];
 
             if (m1 >= m2 && m1 >= m3)
-                return m1;
+                mN = m1;
             if (m2 >= m1 && m2 >= m3)
-                return m2;
-            if (m3 >= m2 && m3 >= m1)
-                return m3;
+                mN = m2;
+            if (m3 >= m1 && m3 >= m2)
+                mN = m3;
 
-            throw new Exception();
+            long[] tmp = [maxP[0] * maxP[1] * maxP[2],
+                        maxN[0] * maxN[1] * maxN[2],
+                        mN*maxP[0],
+                        mN*maxP[1],
+                        mN*maxP[2]];
+
+            foreach (long i in tmp)
+                if (i > result)
+                    result = i;
+
+            return result;
         }
     }
 }
