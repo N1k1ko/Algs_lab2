@@ -43,14 +43,43 @@ namespace SortManyFields
             }
 
             int[] keys = [.. tmp.Keys];
-            tmp = tmp.OrderByDescending(x => x.Key).ToDictionary();
-            foreach (int key in tmp.Keys)
+            foreach (int key in SortKeys(keys, 0, tmp.Count - 1))
             {
-                if (tmp[key].Count > 1 && i<reg.Length)
-                    Smth(reg,tmp[key],i+1);
+                if (tmp[key].Count > 1 && i < reg.Length)
+                    Smth(reg, tmp[key], i + 1);
                 else
                     foreach (string[] e in tmp[key])
                         Console.WriteLine(e[0]);
+            }
+            static int[] SortKeys(int[] array, int leftIndex, int rightIndex)
+            {
+                var i = leftIndex;
+                var j = rightIndex;
+                var pivot = array[leftIndex];
+
+                while (i <= j)
+                {
+                    while (array[i] > pivot)
+                        i++;
+
+                    while (array[j] < pivot)
+                        j--;
+
+                    if (i <= j)
+                    {
+                        (array[j], array[i]) = (array[i], array[j]);
+                        i++;
+                        j--;
+                    }
+                }
+
+                if (leftIndex < j)
+                    SortKeys(array, leftIndex, j);
+
+                if (i < rightIndex)
+                    SortKeys(array, i, rightIndex);
+
+                return array;
             }
         }
     }
